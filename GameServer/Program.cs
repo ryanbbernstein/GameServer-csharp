@@ -7,7 +7,10 @@ namespace GameServer
 		static void Main(string[] args)
 		{
 			Console.Title = "Game Server";
-			Console.WriteLine("Hello World!");
+
+			Server server = new Server(50, 5000);
+
+			server.Start();
 
 			Console.ReadKey();
 		}

@@ -20,17 +20,24 @@ namespace GameServer
 				_id = id;
 			}
 
-			public void ConnectSocket(TcpClient socket)
+			public bool IsConnected()
 			{
-				mSocket = socket;
-				mSocket.ReceiveBufferSize = Constants.BUFFER_SIZE;
-				mSocket.SendBufferSize = Constants.BUFFER_SIZE;
+				return (_socket != null && _socket.Connected);
+			}
 
-				_stream = mSocket.GetStream();
+			public bool ConnectSocket(TcpClient socket)
+			{
+				_socket = socket;
+				_socket.ReceiveBufferSize = Constants.BUFFER_SIZE;
+				_socket.SendBufferSize = Constants.BUFFER_SIZE;
+
+				_stream = _socket.GetStream();
 
 				_dataBuffer = new byte[Constants.BUFFER_SIZE];
 
 				_stream.BeginRead(_dataBuffer, 0, Constants.BUFFER_SIZE, ReceiveData, null);
+
+				return true;
 			}
 
 			private void ReceiveData(IAsyncResult result)
@@ -45,6 +52,8 @@ namespace GameServer
 
 					byte[] data = new byte[dataLength];
 					Array.Copy(_dataBuffer, data, dataLength);
+
+					_stream.BeginRead(_dataBuffer, 0, dataLength, ReceiveData, null);
 				}
 				catch (Exception ex)
 				{
